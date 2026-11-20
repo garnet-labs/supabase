@@ -1,5 +1,5 @@
 # Runs the vendored stamphog merge-gate engine (full LLM verdict) against a PR,
-# with the reviewer's own execution recorded under the Garnet sensor — the merge
+# with the reviewer's own execution recorded under the Garnet sensor - the merge
 # gate gets the same runtime accountability it demands of the code it reviews.
 #
 # Mirrors PostHog's real pr-approval-agent.yml as closely as a fork allows:
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      # Always run the engine + policy from the default branch — hardcoded so a
+      # Always run the engine + policy from the default branch - hardcoded so a
       # PR targeting master can't supply a tampered script or policy.
       - name: Checkout master (trusted gate source)
         uses: actions/checkout@v4
@@ -116,10 +116,10 @@ jobs:
         run: |
           # CI-shape stand-in for the server-side publisher: posts the
           # engine-rendered review_body verbatim (marker
-          # <!-- stamphog:review-status -->, one sticky comment, upserted) —
+          # <!-- stamphog:review-status -->, one sticky comment, upserted) -
           # the same body shape stamphog[bot] publishes in production.
           if [ ! -f "verdict-${{ steps.pr.outputs.number }}.json" ]; then
-            echo "no verdict JSON — engine exited before writing; see the run log"
+            echo "no verdict JSON - engine exited before writing; see the run log"
             exit 0
           fi
           python3 .github/scripts/stamphog-publish.py \
