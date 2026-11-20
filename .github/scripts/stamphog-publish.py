@@ -25,8 +25,8 @@ import subprocess
 import sys
 import tempfile
 
-MARKER = "<!-- stamphog:review-status -->"
-LEGACY_MARKER = "<!-- stamphog-verdict -->"
+MARKER = "<!-- stamphog-sticky-review -->"
+LEGACY_MARKER = "<!-- stamphog:review-status -->"
 
 
 def gh(args: list[str]) -> str:
@@ -70,11 +70,18 @@ def main() -> None:
     verdict_path, repo, pr = sys.argv[1], sys.argv[2], sys.argv[3]
     with open(verdict_path) as f:
         d = json.load(f)
-    full = MARKER + "\n" + render_body(d)
+    verdict = d.get("final_verdict") or ""
+    head = d.get("head_sha") or ""
+    if verdict:
+        headline = f"stamphog reviewed `{head}` — verdict: **{verdict}**"
+    else:
+        headline = f"stamphog review of `{head}` failed before producing a verdict"
+    full = MARKER + "\n> [!NOTE]\n> 🤖 " + headline + "\n\n" + render_body(d)
 
     comments = json.loads(gh(["api", f"repos/{repo}/issues/{pr}/comments", "--paginate"]))
-    existing = [c["id"] for c in comments if MARKER in (c.get("body") or "")]
-    legacy = [c["id"] for c in comments if LEGACY_MARKER in (c.get("body") or "")]
+    ours = [c for c in comments if (c.get("user") or {}).get("login") == "github-actions[bot]"]
+    existing = [c["id"] for c in ours if (c.get("body") or "").startswith(MARKER)]
+    legacy = [c["id"] for c in ours if (c.get("body") or "").startswith(LEGACY_MARKER)]
 
     with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
         f.write(full)
