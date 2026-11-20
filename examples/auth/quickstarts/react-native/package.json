@@ -19,7 +19,7 @@
     "react-native-url-polyfill": "^3.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.6",
+    "@babel/core": "^7.29.6",
     "@types/react": "~19.1.10",
     "typescript": "~5.9.3"
   },
